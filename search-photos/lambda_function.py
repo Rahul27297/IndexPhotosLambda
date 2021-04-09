@@ -55,7 +55,7 @@ def lambda_handler(event, context):
     print(json.dumps(query))
     r = requests.get(url, auth=awsauth, headers=headers, data=json.dumps(query))
     r_dict = json.loads(r.text)
-    print("Rahul")
+    print("Peter")
     print(r_dict)
     result_list = r_dict["hits"]["hits"]
     image_url_list = []
