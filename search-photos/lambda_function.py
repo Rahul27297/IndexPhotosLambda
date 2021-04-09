@@ -38,10 +38,14 @@ def lambda_handler(event, context):
     if keywords is not None:
         if p.singular_noun(keywords):
             label_value = p.singular_noun(keywords)
+        else:
+            label_value = keywords
 
     if keywords_ is not None:
         if p.singular_noun(keywords_):
             label_value += " AND " + p.singular_noun(keywords_)
+        else:
+            label_value += " AND " + keywords_
 
     query = {
         "query": {
