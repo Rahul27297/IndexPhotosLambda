@@ -36,10 +36,12 @@ def lambda_handler(event, context):
     headers = {"Content-Type": "application/json"}
 
     if keywords is not None:
-        label_value = p.singular_noun(keywords)
+        if p.singular_noun(keywords):
+            label_value = p.singular_noun(keywords)
 
     if keywords_ is not None:
-        label_value += " AND " + p.singular_noun(keywords_)
+        if p.singular_noun(keywords_):
+            label_value += " AND " + p.singular_noun(keywords_)
 
     query = {
         "query": {
@@ -49,7 +51,7 @@ def lambda_handler(event, context):
     print(json.dumps(query))
     r = requests.get(url, auth=awsauth, headers=headers, data=json.dumps(query))
     r_dict = json.loads(r.text)
-    print("Rahul logging statement")
+    print("Rahul")
     print(r_dict)
     result_list = r_dict["hits"]["hits"]
     image_url_list = []

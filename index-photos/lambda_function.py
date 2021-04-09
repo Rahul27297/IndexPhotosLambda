@@ -4,6 +4,7 @@ import datetime
 import requests
 from requests_aws4auth import AWS4Auth
 from elasticsearch import Elasticsearch, RequestsHttpConnection
+import inflect
 
 def detect_labels(photo, bucket):
     client = boto3.client('rekognition')
@@ -25,6 +26,7 @@ def lambda_handler(event, context):
     print(event["Records"][0]["s3"]["object"])
 
     s3_client = boto3.client("s3")
+    p = inflect.engine()
     # get bucket name and image name
     bucket = event["Records"][0]["s3"]["bucket"]["name"]
     photo = event["Records"][0]["s3"]["object"]["key"]
@@ -37,15 +39,19 @@ def lambda_handler(event, context):
     image_meta_data = s3_client.head_object(Bucket=bucket, Key=photo)
 
     # todo error check if the user has not specified labels
-    print(image_meta_data["Metadata"]["customlabels"])
-    image_meta_data_labels_list = []
+    if "customlabels" in image_meta_data["Metadata"]:
+        print(image_meta_data["Metadata"]["customlabels"])
+        image_meta_data_labels_list = []
 
-    # user can specify multiplt labels. Make a comma separated list.
-    image_meta_data_labels_list = (image_meta_data["Metadata"]["customlabels"]).split(",")
+        # user can specify multiplt labels. Make a comma separated list.
+        image_meta_data_labels_list = (image_meta_data["Metadata"]["customlabels"]).split(",")
 
-    # append user specified labels to labels list returned by rekognition service
-    for label in image_meta_data_labels_list:
-        labels.append(label)
+        # append user specified labels to labels list returned by rekognition service
+        for label in image_meta_data_labels_list:
+            if p.singular_noun(label):
+                labels.append(p.singular_noun(label))
+            else:
+                labels.append(label)
 
     print("Labels detected: " + str(labels))
 
